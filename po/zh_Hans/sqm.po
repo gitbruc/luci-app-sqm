@@ -304,3 +304,36 @@ msgstr ""
 #: applications/luci-app-sqm/htdocs/luci-static/resources/view/network/sqm.js:219
 msgid "default"
 msgstr "默认"
+
+msgid "This uses the cake qdisc as a replacement for both htb as shaper and fq_codel as leaf qdisc."
+msgstr "该脚本使用 cake 队列规则（qdisc）来替代 htb（分层令牌桶）作为流量整形器，同时取代 fq_codel 作为叶节点队列规则。"
+
+msgid "This exercises cake's diffserv profile(s) as different \"layers\" of priority."
+msgstr "它通过 cake 的差异化服务（diffserv）策略来模拟不同"层级"的流量优先级。"
+
+msgid "This script requires that cake is selected as qdisc, and forces its usage."
+msgstr "该脚本要求并强制使用 cake 作为队列规则（qdisc）。"
+
+msgid "See:"
+msgstr "参考："
+
+msgid "for more information"
+msgstr "了解更多信息"
+
+msgid "This just uses the cake qdisc as a replacement for both htb as shaper and fq_codel as leaf qdisc."
+msgstr "该脚本仅使用 cake 队列规则（qdisc），同时替代 htb 作为整形器和 fq_codel 作为叶队列规则。"
+
+msgid "It just does not come any simpler than this, in other words it truely is a \"piece of cake\"."
+msgstr "这已经是最简单的配置了，换句话说，这真的是“小菜一碟”。"
+
+msgid "BW-limited three-tier prioritisation scheme with your qdisc on each queue."
+msgstr "带宽受限的三层优先级方案，每个队列都可使用您选择的 qdisc。"
+
+msgid "Simplest possible configuration: HTB rate limiter with your qdisc attached."
+msgstr "最简单的配置：HTB 限速器，并绑定您选择的 qdisc。"
+
+msgid "Simplest possible configuration (TBF): TBF rate limiter with your qdisc attached."
+msgstr "最简单的配置（TBF）：TBF 限速器，并绑定您选择的 qdisc。"
+
+msgid "TBF may give better performance than HTB on some architectures. This script forces fq_codel usage if cake is selected as qdisc."
+msgstr "在某些架构上，TBF 可能比 HTB 有更好的性能。当 cake 被选为 qdisc 时，该脚本会强制使用 fq_codel。"

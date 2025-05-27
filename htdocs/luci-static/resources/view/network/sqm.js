@@ -8,13 +8,6 @@
 'require tools.widgets as widgets';
 
 return view.extend({
-	handleGetHelpText: function(script_name, tbl) {
-		return fs.read("/usr/lib/sqm/" + script_name + ".help").then(function (text) {
-			if (text)
-				return [script_name, text];
-		});
-	},
-
 	handleEnableSQM: rpc.declare({
 		object: 'luci',
 		method: 'setInitAction',
@@ -26,13 +19,11 @@ return view.extend({
 		return Promise.all([
 			L.resolveDefault(fs.list('/var/run/sqm/available_qdiscs'), []),
 			L.resolveDefault(fs.list('/usr/lib/sqm'), []).then(L.bind(function(scripts) {
-				var tasks = [], scriptHelpTbl = {};
-
+				var result = [];
 				for (var i = 0; i < scripts.length; i++)
 					if (scripts[i].name.search(/\.qos$/) != -1)
-						tasks.push(L.resolveDefault(this.handleGetHelpText(scripts[i].name, scriptHelpTbl), [scripts[i].name, null]));
-
-				return Promise.all(tasks);
+						result.push([scripts[i].name]);
+				return result;
 			}, this)),
 			uci.load('sqm')
 		]);
@@ -117,14 +108,31 @@ return view.extend({
 		o.rmempty = false;
 
 		var qos_desc = "";
+		var hasIptables = L.hasSystemFeature('iptables');
+		var helpTexts = {
+			"layer_cake.qos": _("This uses the cake qdisc as a replacement for both htb as shaper and fq_codel as leaf qdisc.") + "<br />"
+				+ _("This exercises cake's diffserv profile(s) as different \"layers\" of priority.") + "<br />"
+				+ _("This script requires that cake is selected as qdisc, and forces its usage.") + "<br />"
+				+ _("See:") + " http://www.bufferbloat.net/projects/codel/wiki/Cake " + _("for more information"),
+			"piece_of_cake.qos": _("This just uses the cake qdisc as a replacement for both htb as shaper and fq_codel as leaf qdisc.") + "<br />"
+				+ _("It just does not come any simpler than this, in other words it truely is a \"piece of cake\".") + "<br />"
+				+ _("This script requires that cake is selected as qdisc, and forces its usage.") + "<br />"
+				+ _("See:") + " http://www.bufferbloat.net/projects/codel/wiki/Cake " + _("for more information"),
+			"simple.qos": _("BW-limited three-tier prioritisation scheme with your qdisc on each queue."),
+			"simplest.qos": _("Simplest possible configuration: HTB rate limiter with your qdisc attached."),
+			"simplest_tbf.qos": _("Simplest possible configuration (TBF): TBF rate limiter with your qdisc attached.") + "<br />"
+				+ _("TBF may give better performance than HTB on some architectures. This script forces fq_codel usage if cake is selected as qdisc.")
+		};
 		o = s.taboption("tab_qdisc", form.ListValue, "script", _("Queue setup script"));
-		for (i = 0; i < scripts.length; i++) {
-			o.value(scripts[i][0]);
-			qos_desc +=  "<p><b>" + scripts[i][0] + ":</b><br />";
-			if (scripts[i][1])
-				qos_desc += scripts[i][1] + "</p>";
-			else
-				qos_desc += "No help text</p>";
+		for (var i = 0; i < scripts.length; i++) {
+			var scriptName = scripts[i][0];
+			if (!hasIptables && scriptName.indexOf("simple") === 0) {
+				continue;
+			}
+			o.value(scriptName);
+			qos_desc += "<b>" + scriptName + ":</b><br />";
+			if (helpTexts[scriptName])
+				qos_desc += helpTexts[scriptName] + "</br></br>";
 		}
 		o.default = "piece_of_cake.qos";
 		o.rmempty = false;
